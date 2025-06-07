@@ -1,365 +1,43 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pat & Lanj Wedding Reception</title>
+  <title>Patrick & Landrey Wedding</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
-  <style>
-    /* ========== Global Styles ========== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Open Sans', sans-serif;
-      background: linear-gradient(135deg, #F5E8E4 0%, #E8F0F2 100%);
-      color: #333;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ========== Header ========== */
-    .header {
-      background: linear-gradient(90deg, #FFD1DC, #FFE8D6);
-      padding: 30px;
-      text-align: center;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .header__title {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.8rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: #4A4A4A;
-      margin-bottom: 10px;
-      animation: fadeIn 1s ease-in;
-    }
-
-    .header p {
-      font-size: 1.3rem;
-      color: #666;
-      font-weight: 300;
-    }
-
-    /* ========== Main Container ========== */
-    .main {
-      padding: 20px;
-      flex: 1;
-      max-width: 1600px; /* Increased for widescreen */
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .container {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      border: 1px solid #FFD1DC;
-      transition: transform 0.3s ease;
-    }
-
-    .container:hover {
-      transform: translateY(-3px);
-    }
-
-    /* ========== Gallery Styles ========== */
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 20px;
-      padding: 10px;
-    }
-
-    .gallery-item {
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      cursor: pointer;
-    }
-
-    .gallery-item:hover {
-      transform: scale(1.05);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .gallery-item img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* ========== Full-Screen Modal ========== */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .modal.show {
-      display: flex;
-      opacity: 1;
-    }
-
-    .modal img {
-      max-width: 90%;
-      max-height: 90%;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      color: #fff;
-      font-size: 2rem;
-      cursor: pointer;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 5px 15px;
-      border-radius: 50%;
-      line-height: 1;
-    }
-
-    /* ========== Footer ========== */
-    .footer {
-      background: #FFD1DC;
-      color: #4A4A4A;
-      text-align: center;
-      padding: 15px;
-      margin-top: auto;
-      font-size: 1rem;
-      font-weight: 300;
-    }
-
-    /* ========== Animations ========== */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ========== Responsive Styles ========== */
-    @media (max-width: 600px) {
-      .main {
-        padding: 10px;
-      }
-
-      .header__title {
-        font-size: 1.8rem;
-      }
-
-      .header p {
-        font-size: 0.9rem;
-      }
-
-      .gallery {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      }
-
-      .gallery-item img {
-        height: 100px;
-      }
-    }
-
-    @media (min-width: 601px) and (max-width: 900px) {
-      .main {
-        padding: 15px;
-      }
-
-      .header__title {
-        font-size: 2.2rem;
-      }
-
-      .header p {
-        font-size: 1.1rem;
-      }
-
-      .gallery {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      }
-
-      .gallery-item img {
-        height: 140px;
-      }
-    }
-
-    @media (min-width: 901px) and (max-width: 1200px) {
-      .gallery {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      }
-
-      .gallery-item img {
-        height: 160px;
-      }
-    }
-
-    @media (min-width: 1201px) {
-      .gallery {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      }
-
-      .gallery-item img {
-        height: 200px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <nav class="navbar">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="reveal.html">Reveal</a></li>
+      <li><a href="preparation.html">Preparation</a></li>
+      <li><a href="posed.html">Posed</a></li>
+      <li><a href="ceremony.html">Ceremony</a></li>
+      <li><a href="reception.html">Reception</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="edits.html">Edits</a></li>
+    </ul>
+  </nav>
   <header class="header">
-    <h1 class="header__title">Pat & Lanj Wedding Reception</h1>
+    <h1 class="header__title">Patrick & Landrey Wedding</h1>
     <p>Cherish the moments from our special day!</p>
   </header>
   <main class="main">
     <div class="container">
-      <div class="gallery" id="gallery"></div>
+      <div class="hero-section">
+        <img src="couple.png" alt="Patrick & Landrey" class="hero-image">
+        <div class="wedding-info">
+          <h2>05/25/2025</h2>
+          <p>Explore our photo galleries to relive the magic of our wedding day, from the planning stages to the ceremony and reception.</p>
+          <p><a href="https://www.theknot.com/us/patrick-mars-and-landrey-walter-may-2025">The Knot</a></p>
+        </div>
+      </div>
     </div>
   </main>
   <footer class="footer">
-    <p>© 2025 Pat & Lanj Wedding Photos</p>
+    <p>© 2025 Patrick & Landrey Wedding Photos</p>
   </footer>
-  <div class="modal" id="modal">
-    <span class="modal-close" id="modal-close">×</span>
-    <img id="modal-image" src="" alt="Full-screen photo">
-  </div>
-
-  <script type="text/javascript">
-    var gk_isXlsx = false;
-    var gk_xlsxFileLookup = {};
-    var gk_fileData = {};
-    function filledCell(cell) {
-      return cell !== '' && cell != null;
-    }
-    function loadFileData(filename) {
-      if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-        try {
-          var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-          var firstSheetName = workbook.SheetNames[0];
-          var worksheet = workbook.Sheets[firstSheetName];
-          var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-          var filteredData = jsonData.filter(row => row.some(filledCell));
-          var headerRowIndex = filteredData.findIndex((row, index) =>
-            row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-          );
-          if (headerRowIndex === -1 || headerRowIndex > 25) {
-            headerRowIndex = 0;
-          }
-          var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
-          csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-          return csv;
-        } catch (e) {
-          console.error(e);
-          return "";
-        }
-      }
-      return gk_fileData[filename] || "";
-    }
-
-    // Gallery image loading
-    const gallery = document.getElementById('gallery');
-    const ranges = [
-      { start: 1, end: 540 },    // PHMS0001 to PHMS0540
-      { start: 8071, end: 9999 } // PHMS8071 to PHMS9999
-    ];
-
-    ranges.forEach(range => {
-      for (let i = range.start; i <= range.end; i++) {
-        const num = i.toString().padStart(4, '0');
-        const filename = `PHMS${num}.jpg`;
-        const div = document.createElement('div');
-        div.className = 'gallery-item';
-        div.innerHTML = `
-          <img src="photos/${filename}" alt="Reception Photo ${num}" loading="lazy">
-        `;
-        gallery.appendChild(div);
-      }
-    });
-
-    // Full-screen image modal
-    const modal = document.getElementById('modal');
-    const modalImage = document.getElementById('modal-image');
-    const modalClose = document.getElementById('modal-close');
-
-    gallery.addEventListener('dblclick', (e) => {
-      if (e.target.tagName === 'IMG') {
-        modalImage.src = e.target.src;
-        modal.classList.add('show');
-      }
-    });
-
-    modalClose.addEventListener('click', () => {
-      modal.classList.remove('show');
-      modalImage.src = '';
-    });
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.remove('show');
-        modalImage.src = '';
-      }
-    });
-
-    // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('show')) {
-        modal.classList.remove('show');
-        modalImage.src = '';
-      }
-    });
-  </script>
 </body>
 </html>

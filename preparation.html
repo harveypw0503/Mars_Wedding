@@ -1,0 +1,217 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patrick & Landrey Wedding Preparation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Modal label styling */
+    #modal-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+      pointer-events: none;
+      user-select: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="reveal.html">Reveal</a></li>
+      <li><a href="preparation.html">Preparation</a></li>
+      <li><a href="posed.html">Posed</a></li>
+      <li><a href="ceremony.html">Ceremony</a></li>
+      <li><a href="reception.html">Reception</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="edits.html">Edits</a></li>
+    </ul>
+  </nav>
+
+  <header class="header">
+    <h1 class="header__title">Patrick & Landrey Wedding Preparation</h1>
+    <p>Cherish the moments from our special day!</p>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 Patrick & Landrey Wedding Photos</p>
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <span class="modal-close" id="modal-close">×</span>
+    <div id="modal-label"></div>
+    <img id="modal-image" src="" alt="Full-screen photo" />
+  </div>
+
+  <script type="text/javascript">
+    const gallery = document.getElementById('gallery');
+    // Your photo numbers for preparation
+    const photoNumbers = [
+      9505, 9506, 9507, 9508, 9509, 9510, 9511, 9512, 9513, 9514, 9515, 9516, 9517, 9518, 9519,
+      9520, 9521, 9522, 9524, 9525, 9526, 9527, 9528, 9529
+    ];
+
+    function loadGallery() {
+      for (const num of photoNumbers) {
+        const formattedNum = num.toString().padStart(4, '0');
+        const filename = `PHMS${formattedNum}.jpg`;
+        const src = `photos/${filename}`;
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        div.innerHTML = `<img src="${src}" alt="Preparation Photo ${formattedNum}" loading="lazy" />`;
+        gallery.appendChild(div);
+      }
+    }
+
+    loadGallery();
+
+    const modal = document.getElementById('modal');
+    const modalImage = document.getElementById('modal-image');
+    const modalClose = document.getElementById('modal-close');
+    const modalLabel = document.getElementById('modal-label');
+    let currentIndex = 0;
+
+    function updateModal(num) {
+      const filename = `PHMS${num.toString().padStart(4, '0')}.jpg`;
+      modalImage.src = `photos/${filename}`;
+      modalLabel.textContent = `Photo #${num}`;
+    }
+
+    gallery.addEventListener('dblclick', (e) => {
+      if (e.target.tagName === 'IMG') {
+        const src = e.target.src;
+        currentIndex = photoNumbers.findIndex(num => src.includes(`PHMS${num.toString().padStart(4, '0')}`));
+        updateModal(photoNumbers[currentIndex]);
+        modal.classList.add('show');
+      }
+    });
+
+    modalClose.addEventListener('click', () => {
+      modal.classList.remove('show');
+      modalImage.src = '';
+      modalLabel.textContent = '';
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('show');
+        modalImage.src = '';
+        modalLabel.textContent = '';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (modal.classList.contains('show')) {
+        if (e.key === 'Escape') {
+          modal.classList.remove('show');
+          modalImage.src = '';
+          modalLabel.textContent = '';
+        } else if (e.key === 'ArrowLeft' || e.keyCode === 37) {
+          currentIndex = (currentIndex - 1 + photoNumbers.length) % photoNumbers.length;
+          updateModal(photoNumbers[currentIndex]);
+        } else if (e.key === 'ArrowRight' || e.keyCode === 39) {
+          currentIndex = (currentIndex + 1) % photoNumbers.length;
+          updateModal(photoNumbers[currentIndex]);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

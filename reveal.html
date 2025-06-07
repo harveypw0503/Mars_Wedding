@@ -1,0 +1,163 @@
+<script type="text/javascript">
+  var gk_isXlsx = false;
+  var gk_xlsxFileLookup = {};
+  var gk_fileData = {};
+  function filledCell(cell) {
+    return cell !== '' && cell != null;
+  }
+  function loadFileData(filename) {
+    if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+      try {
+        var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+        var firstSheetName = workbook.SheetNames[0];
+        var worksheet = workbook.Sheets[firstSheetName];
+
+        var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+        var filteredData = jsonData.filter(row => row.some(filledCell));
+
+        var headerRowIndex = filteredData.findIndex((row, index) =>
+          row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+        );
+        if (headerRowIndex === -1 || headerRowIndex > 25) {
+          headerRowIndex = 0;
+        }
+
+        var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+        csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+        return csv;
+      } catch (e) {
+        console.error(e);
+        return "";
+      }
+    }
+    return gk_fileData[filename] || "";
+  }
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Patrick & Landrey Wedding Reveal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="reveal.html">Reveal</a></li>
+      <li><a href="preparation.html">Preparation</a></li>
+      <li><a href="posed.html">Posed</a></li>
+      <li><a href="ceremony.html">Ceremony</a></li>
+      <li><a href="reception.html">Reception</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="edits.html">Edits</a></li>
+    </ul>
+  </nav>
+  <header class="header">
+    <h1 class="header__title">Patrick & Landrey Wedding Reveal</h1>
+    <p>Cherish the moments from our special day!</p>
+  </header>
+  <main class="main">
+    <div class="container">
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </main>
+  <footer class="footer">
+    <p>© 2025 Patrick & Landrey Wedding Photos</p>
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <span class="modal-close" id="modal-close">×</span>
+    <div id="modal-label" style="
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+    "></div>
+    <img id="modal-image" src="" alt="Full-screen photo">
+  </div>
+
+  <script type="text/javascript">
+    const gallery = document.getElementById('gallery');
+    const photoNumbers = [
+      8105, 8106, 8107, 8108, 8109, 8110, 8111, 8112, 8113, 8114, 8115, 8116, 8117, 8118, 8119,
+      8120, 8121, 8122, 8123, 8124, 8125, 8126, 8127, 8128, 8129, 8130, 8131, 8132, 8133, 8134,
+      8135, 8136, 8137, 8138, 8139, 8140, 8141, 8142, 8143, 8144, 8145, 8146, 8147, 8148, 8149,
+      8150, 8151, 8152, 8153, 8154, 8155, 8156, 8157, 8158, 8159, 8160, 8161, 8162, 8163
+    ];
+
+    function loadGallery() {
+      for (const num of photoNumbers) {
+        const filename = `PHMS${num}.jpg`;
+        const src = `photos/${filename}`;
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        div.innerHTML = `<img src="${src}" alt="Reveal Photo ${num}" loading="lazy">`;
+        gallery.appendChild(div);
+      }
+    }
+
+    loadGallery();
+
+    const modal = document.getElementById('modal');
+    const modalImage = document.getElementById('modal-image');
+    const modalClose = document.getElementById('modal-close');
+    const modalLabel = document.getElementById('modal-label');
+    let currentIndex = 0;
+
+    function updateModal(num) {
+      const filename = `PHMS${num.toString().padStart(4, '0')}.jpg`;
+      modalImage.src = `photos/${filename}`;
+      modalLabel.textContent = `Photo #${num}`;
+    }
+
+    gallery.addEventListener('dblclick', (e) => {
+      if (e.target.tagName === 'IMG') {
+        const src = e.target.src;
+        currentIndex = photoNumbers.findIndex(num => src.includes(`PHMS${num}`));
+        updateModal(photoNumbers[currentIndex]);
+        modal.classList.add('show');
+      }
+    });
+
+    modalClose.addEventListener('click', () => {
+      modal.classList.remove('show');
+      modalImage.src = '';
+      modalLabel.textContent = '';
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('show');
+        modalImage.src = '';
+        modalLabel.textContent = '';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (modal.classList.contains('show')) {
+        if (e.key === 'Escape') {
+          modal.classList.remove('show');
+          modalImage.src = '';
+          modalLabel.textContent = '';
+        } else if (e.key === 'ArrowLeft' || e.keyCode === 37) {
+          currentIndex = (currentIndex - 1 + photoNumbers.length) % photoNumbers.length;
+          updateModal(photoNumbers[currentIndex]);
+        } else if (e.key === 'ArrowRight' || e.keyCode === 39) {
+          currentIndex = (currentIndex + 1) % photoNumbers.length;
+          updateModal(photoNumbers[currentIndex]);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

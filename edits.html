@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Photo Editing Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    /* ========== Global Styles ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: linear-gradient(135deg, #F5E8E4 0%, #E8F0F2 100%);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ========== Navbar ========== */
+    .navbar {
+      background: linear-gradient(90deg, #FFD1DC, #FFE8D6);
+      padding: 15px 30px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .navbar li {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .navbar a {
+      color: #4A4A4A;
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 400;
+      padding: 8px 15px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+
+    .navbar a:hover {
+      background: #FFE8D6;
+    }
+
+    /* ========== Header ========== */
+    .header {
+      background: linear-gradient(90deg, #FFD1DC, #FFE8D6);
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header__title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #4A4A4A;
+      margin-bottom: 10px;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .header p {
+      font-size: 1.3rem;
+      color: #666;
+      font-weight: 300;
+    }
+
+    /* ========== Main Container ========== */
+    .main {
+      padding: 20px;
+      flex: 1;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid #FFD1DC;
+      transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-3px);
+    }
+
+    /* ========== Slider Gallery Styles ========== */
+    .gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      padding: 10px;
+    }
+
+    .slider-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 500px;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      cursor: grab;
+      aspect-ratio: 3 / 2; /* Maintains proportional height; adjust based on your images */
+    }
+
+    .before-image, .after-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* Changed to contain to show full image without cropping */
+      object-position: center; /* Centers the image within the container */
+      transition: clip-path 0.1s ease;
+    }
+
+    .before-image {
+      z-index: 1;
+    }
+
+    .after-image {
+      z-index: 2;
+    }
+
+    .slider {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 4px;
+      height: 100%;
+      background: #FFD1DC;
+      z-index: 3;
+      cursor: ew-resize;
+      user-select: none;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border: 2px solid #FFD1DC;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .label {
+      position: absolute;
+      z-index: 4;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 1.2rem;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 5px 10px;
+      border-radius: 5px;
+      pointer-events: none;
+    }
+
+    .label-before {
+      top: 10px;
+      left: 10px;
+    }
+
+    .label-after {
+      top: 10px;
+      right: 10px;
+    }
+
+    /* ========== Footer ========== */
+    .footer {
+      background: #FFD1DC;
+      color: #4A4A4A;
+      text-align: center;
+      padding: 15px;
+      margin-top: auto;
+      font-size: 1rem;
+      font-weight: 300;
+    }
+
+    /* ========== Animations ========== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== Responsive Styles ========== */
+    @media (max-width: 600px) {
+      .main {
+        padding: 10px;
+      }
+
+      .header__title {
+        font-size: 1.8rem;
+      }
+
+      .header p {
+        font-size: 0.9rem;
+      }
+
+      .slider-container {
+        height: auto; /* Allows height to adjust based on aspect ratio */
+      }
+
+      .label {
+        font-size: 1rem;
+      }
+
+      .navbar ul {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .navbar a {
+        font-size: 1rem;
+        padding: 6px 12px;
+      }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+      .main {
+        padding: 15px;
+      }
+
+      .header__title {
+        font-size: 2.2rem;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+      }
+
+      .slider-container {
+        height: auto; /* Allows height to adjust based on aspect ratio */
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="reveal.html">Reveal</a></li>
+      <li><a href="preparation.html">Preparation</a></li>
+      <li><a href="posed.html">Posed</a></li>
+      <li><a href="ceremony.html">Ceremony</a></li>
+      <li><a href="reception.html">Reception</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="edits.html">Edits</a></li>
+    </ul>
+  </nav>
+  <header class="header">
+    <h1 class="header__title">Request Photo For Editing</h1>
+    <p>Email <a href="mailto:marswedding52525@gmail.com">marswedding52525@gmail.com</a> with the numbers of photos you want edited! Describe any certain edits. 
+    <br>Edits come is .jpg format. You can request RAW format if desired!</p>
+  </header>
+  <main class="main">
+    <div class="container">
+      <div class="gallery" id="gallery">
+        <!-- Slider 1 -->
+        <div class="slider-container" data-index="0">
+          <img class="before-image" src="couple_before.jpg" alt="Before Photo 1">
+          <img class="after-image" src="couple_after.jpg" alt="After Photo 1">
+          <div class="slider"></div>
+          <div class="label label-before">Before</div>
+          <div class="label label-after">After</div>
+        </div>
+        <!-- Slider 2 -->
+        <div class="slider-container" data-index="1">
+          <img class="before-image" src="cake_before.jpg" alt="Before Photo 2">
+          <img class="after-image" src="cake_after.jpg" alt="After Photo 2">
+          <div class="slider"></div>
+          <div class="label label-before">Before</div>
+          <div class="label label-after">After</div>
+        </div>
+        <!-- Slider 3 -->
+        <div class="slider-container" data-index="2">
+          <img class="before-image" src="dance_before.jpg" alt="Before Photo 3">
+          <img class="after-image" src="dance_after.jpg" alt="After Photo 3">
+          <div class="slider"></div>
+          <div class="label label-before">Before</div>
+          <div class="label label-after">After</div>
+        </div>
+        <!-- Add more sliders as needed -->
+      </div>
+    </div>
+  </main>
+  <footer class="footer">
+    <p>© 2025 Your Photo Editing Portfolio</p>
+  </footer>
+
+  <script type="text/javascript">
+    const photoPairs = [
+      { before: 'couple_before.jpg', after: 'couple_after.jpg', label: 'Photo 1' },
+      { before: 'cake_before.jpg', after: 'cake_after.jpg', label: 'Photo 2' },
+      { before: 'dance_before.jpg', after: 'dance_after.jpg', label: 'Photo 3' }
+      // Add more pairs here with your actual file names
+    ];
+
+    const sliders = document.querySelectorAll('.slider-container');
+
+    sliders.forEach(container => {
+      const beforeImage = container.querySelector('.before-image');
+      const afterImage = container.querySelector('.after-image');
+      const slider = container.querySelector('.slider');
+      let isDragging = false;
+
+      function updateSlider(e) {
+        const rect = container.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        x = Math.max(0, Math.min(x, rect.width)); // Clamp x within container bounds
+        const percentage = (x / rect.width) * 100;
+        slider.style.left = `${percentage}%`;
+        afterImage.style.clipPath = `inset(0 0 0 ${percentage}%)`;
+        beforeImage.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`;
+      }
+
+      slider.addEventListener('mousedown', () => {
+        isDragging = true;
+        container.style.cursor = 'grabbing';
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+        container.style.cursor = 'grab';
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          updateSlider(e);
+        }
+      });
+
+      container.addEventListener('touchstart', () => {
+        isDragging = true;
+        container.style.cursor = 'grabbing';
+      });
+
+      document.addEventListener('touchend', () => {
+        isDragging = false;
+        container.style.cursor = 'grab';
+      });
+
+      container.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+          e.preventDefault();
+          const touch = e.touches[0];
+          updateSlider(touch);
+        }
+      });
+
+      // Initial position (50% for overlap)
+      const initialPercentage = 50;
+      slider.style.left = `${initialPercentage}%`;
+      afterImage.style.clipPath = `inset(0 0 0 ${initialPercentage}%)`;
+      beforeImage.style.clipPath = `inset(0 ${100 - initialPercentage}% 0 0)`;
+    });
+  </script>
+</body>
+</html>
