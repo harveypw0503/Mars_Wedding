@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patrick & Landrey Wedding Videos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Video container styling */
+    .video-container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      padding: 10px;
+    }
+    .video-item {
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+    }
+    .video-item iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9; /* Maintains YouTube video aspect ratio */
+      border: none;
+    }
+    .video-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: #4A4A4A;
+      text-align: center;
+      margin: 10px 0;
+    }
+    /* Modal label styling */
+    #modal-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+      pointer-events: none;
+      user-select: none;
+      z-index: 10;
+    }
+    /* Modal styling for videos */
+    .modal iframe {
+      max-width: 90%;
+      max-height: 80%;
+      aspect-ratio: 16 / 9;
+      border-radius: 8px;
+    }
+    /* Responsive video sizing */
+    @media (max-width: 600px) {
+      .video-item iframe {
+        height: 200px;
+      }
+      .video-title {
+        font-size: 1.2rem;
+      }
+      .modal iframe {
+        max-height: 60%;
+      }
+    }
+    @media (min-width: 601px) and (max-width: 900px) {
+      .video-item iframe {
+        height: 300px;
+      }
+      .modal iframe {
+        max-height: 70%;
+      }
+    }
+    @media (min-width: 901px) {
+      .video-item iframe {
+        height: 450px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="reveal.html">Reveal</a></li>
+      <li><a href="preparation.html">Preparation</a></li>
+      <li><a href="posed.html">Posed</a></li>
+      <li><a href="ceremony.html">Ceremony</a></li>
+      <li><a href="reception.html">Reception</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="edits.html">Edits</a></li>
+      <li><a href="videos.html">Videos</a></li>
+    </ul>
+  </nav>
+  <header class="header">
+    <h1 class="header__title">Patrick & Landrey Wedding Videos</h1>
+    <p>Relive the special moments from our wedding day!</p>
+  </header>
+  <main class="main">
+    <div class="container">
+      <div class="video-container" id="video-gallery">
+        <div class="video-item" data-index="0">
+          <div class="video-title">Ceremony Livestream</div>
+          <iframe src="https://www.youtube.com/embed/3hBYDmYTVOc" allowfullscreen></iframe>
+        </div>
+        <div class="video-item" data-index="1">
+          <div class="video-title">Father of the Bride Speech</div>
+          <iframe src="https://www.youtube.com/embed/zlyC3eLqHPE" allowfullscreen></iframe>
+        </div>
+        <div class="video-item" data-index="2">
+          <div class="video-title">Dance</div>
+          <iframe src="https://www.youtube.com/embed/nab-7g6lixU" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer">
+    <p>© 2025 Patrick & Landrey Wedding Photos</p>
+  </footer>
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <span class="modal-close" id="modal-close">×</span>
+    <div id="modal-label"></div>
+    <iframe id="modal-video" src="" allowfullscreen></iframe>
+  </div>
+  <script type="text/javascript">
+    const videoGallery = document.getElementById('video-gallery');
+    const videos = [
+      { id: 'YOUR_YOUTUBE_VIDEO_ID_1', title: 'Ceremony Livestream' },
+      { id: 'YOUR_YOUTUBE_VIDEO_ID_2', title: 'Father of the Bride Speech' },
+      { id: 'YOUR_YOUTUBE_VIDEO_ID_3', title: 'Dance' }
+    ];
+
+    function loadVideoGallery() {
+      videoGallery.querySelectorAll('.video-item').forEach((item, index) => {
+        item.addEventListener('click', () => {
+          currentIndex = index;
+          updateModal(videos[currentIndex]);
+          modal.classList.add('show');
+        });
+      });
+    }
+
+    loadVideoGallery();
+
+    const modal = document.getElementById('modal');
+    const modalVideo = document.getElementById('modal-video');
+    const modalClose = document.getElementById('modal-close');
+    const modalLabel = document.getElementById('modal-label');
+    let currentIndex = 0;
+
+    function updateModal(video) {
+      modalVideo.src = `https://www.youtube.com/embed/${video.id}`;
+      modalLabel.textContent = video.title;
+    }
+
+    modalClose.addEventListener('click', () => {
+      modal.classList.remove('show');
+      modalVideo.src = ''; // Stop video playback
+      modalLabel.textContent = '';
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('show');
+        modalVideo.src = '';
+        modalLabel.textContent = '';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (modal.classList.contains('show')) {
+        if (e.key === 'Escape') {
+          modal.classList.remove('show');
+          modalVideo.src = '';
+          modalLabel.textContent = '';
+        } else if (e.key === 'ArrowLeft' || e.keyCode === 37) {
+          currentIndex = (currentIndex - 1 + videos.length) % videos.length;
+          updateModal(videos[currentIndex]);
+        } else if (e.key === 'ArrowRight' || e.keyCode === 39) {
+          currentIndex = (currentIndex + 1) % videos.length;
+          updateModal(videos[currentIndex]);
+        }
+      }
+    });
+
+    // Swipe navigation for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    modal.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    modal.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const swipeDistance = touchEndX - touchStartX;
+      const minSwipeDistance = 50;
+
+      if (modal.classList.contains('show')) {
+        if (swipeDistance > minSwipeDistance) {
+          // Swipe right: previous video
+          currentIndex = (currentIndex - 1 + videos.length) % videos.length;
+          updateModal(videos[currentIndex]);
+        } else if (swipeDistance < -minSwipeDistance) {
+          // Swipe left: next video
+          currentIndex = (currentIndex + 1) % videos.length;
+          updateModal(videos[currentIndex]);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
